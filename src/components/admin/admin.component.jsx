@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons';
 import { AiOutlineMenu } from 'react-icons/ai';
 import styles from './admin.module.scss';
+import { useNavigate } from 'react-router-dom';
 import { IoLogOutOutline } from 'react-icons/io5';
 import Logout from '../logout/logout.component';
 import Account from '../account/account.component';
@@ -24,12 +25,12 @@ const AdminPage = () => {
   const [selectedKey, setSelectedKey] = useState('1');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const loginInfo = localStorage.getItem('loginInfo');
-    if (!loginInfo) {
-      navigate('/login');
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   const loginInfo = localStorage.getItem('loginInfo');
+  //   if (!loginInfo) {
+  //     navigate('/login');
+  //   }
+  // }, [navigate]);
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
