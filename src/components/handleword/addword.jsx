@@ -1,14 +1,22 @@
 import React from 'react';
-import { Modal, Form, Input, Button, message } from 'antd';
+import { Modal, Form, Input, Button, message, Upload,  } from 'antd';
 import { useState } from 'react';
+import {PlusOutlined} from '@ant-design/icons'
+import {TextArea} from "antd/lib/input";
 import { addWord } from '../../services/wordService';
+
 
 const loginInfo = localStorage.getItem('loginInfo');
 const userId = loginInfo ? JSON.parse(loginInfo).userId : null; // Ensure that loginInfo is not null
 
 const AddWord = ({ open, onOk, onCancel }) => {
   const [form] = Form.useForm();
-
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
   const handleFinish = async (values) => {
     console.log('Received values of form: ', values);
     const completeData = {
@@ -92,17 +100,33 @@ const AddWord = ({ open, onOk, onCancel }) => {
         >
           <Input />
         </Form.Item>
+
         <Form.Item
-          label="Image URL"
-          name="image"
+            label="Subject"
+            name="subject"
         >
           <Input />
         </Form.Item>
-        <Form.Item
-          label="Subject"
-          name="subject"
-        >
-          <Input />
+
+        <Form.Item label="Upload" valuePropName="fileList" getValueFromEvent={normFile}>
+          <Upload action="/upload.do" listType="picture-card">
+            <button
+                style={{
+                  border: 0,
+                  background: 'none',
+                }}
+                type="button"
+            >
+              <PlusOutlined />
+              <div
+                  style={{
+                    marginTop: 8,
+                  }}
+              >
+                Upload
+              </div>
+            </button>
+          </Upload>
         </Form.Item>
       </Form>
     </Modal>
