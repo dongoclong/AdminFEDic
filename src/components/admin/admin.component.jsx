@@ -80,7 +80,7 @@ const AdminPage = () => {
       <Sider collapsible collapsed={collapsed} onCollapse={toggleCollapsed}>
         <div className={styles.footer}>
           <DesktopOutlined /> {/* This line adds the icon next to the text */}
-          <span>Admin BBS</span>
+          <span>Admin Dic</span>
         </div>
         <Menu
           theme="dark"
