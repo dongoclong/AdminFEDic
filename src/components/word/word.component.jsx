@@ -1,37 +1,71 @@
-import React, { useEffect } from 'react';
-import {Modal, Table, Space, Button, Spin } from 'antd';
-import { useState } from 'react';
-import { getAllWord, deleteWord, addWord, updateWord } from '../../services/wordService';
-import AddWord from '../handleword/addword'
-
+import React, { useState, useEffect } from 'react';
+import { Modal, Table, Space, Button, Spin, Input, Row, Col } from 'antd';
+import { SearchOutlined, FileExcelOutlined } from '@ant-design/icons';
+import { getAllWord, deleteWord, addWord } from '../../services/wordService';
+import AddWord from '../handleword/addword';
+import moment from 'moment';
+import * as XLSX from 'xlsx';
 
 const loginInfo = localStorage.getItem('loginInfo');
 const userIdLogin = loginInfo ? JSON.parse(loginInfo).userId : null;
 
+const monthFilters = [
+  { text: 'January', value: '01' },
+  { text: 'February', value: '02' },
+  { text: 'March', value: '03' },
+  { text: 'April', value: '04' },
+  { text: 'May', value: '05' },
+  { text: 'June', value: '06' },
+  { text: 'July', value: '07' },
+  { text: 'August', value: '08' },
+  { text: 'September', value: '09' },
+  { text: 'October', value: '10' },
+  { text: 'November', value: '11' },
+  { text: 'December', value: '12' },
+];
+
 const Word = () => {
   const [WordData, setWordData] = useState([]);
+  const [filteredWordData, setFilteredWordData] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentWord, setCurrentWord] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-
+  const [searchText, setSearchText] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [totalWords, setTotalWords] = useState(0);
 
   useEffect(() => {
     const getWord = async () => {
       setLoading(true);
       try {
         const response = await getAllWord();
-          setWordData(response);
-          console.log(response);
-          setLoading(false);
+        const formattedResponse = response.map(word => ({
+          ...word,
+          formattedDate: moment(word.date, 'HH:mm:ss DD/MM/YYYY').format('DD-MM-YYYY')
+        }));
+        setWordData(formattedResponse);
+        setFilteredWordData(formattedResponse);
+        setLoading(false);
       } catch (error) {
-        setError('Fetch data fail')
-        setLoading(false)
+        setError('Fetch data failed');
+        setLoading(false);
       }
     };
     getWord();
   }, []);
+
+  useEffect(() => {
+    const filteredData = WordData.filter((word) => {
+      const isTextMatch = word.word.toLowerCase().includes(searchText.toLowerCase()) ||
+        word.subject.toLowerCase().includes(searchText.toLowerCase());
+      const isMonthMatch = !selectedMonth || moment(word.date, 'HH:mm:ss DD/MM/YYYY').format('MM') === selectedMonth;
+      return isTextMatch && isMonthMatch;
+    });
+    setFilteredWordData(filteredData);
+    setTotalWords(filteredData.length);
+  }, [searchText, selectedMonth, WordData]);
 
   const handleEdit = (record) => {
     console.log('Editing record', record);
@@ -40,12 +74,60 @@ const Word = () => {
   };
 
   const handleAddWord = (newWord) => {
-    setWordData([...WordData, newWord]);
+    const formattedNewWord = {
+      ...newWord,
+      formattedDate: moment(newWord.date, 'HH:mm:ss DD/MM/YYYY').format('DD-MM-YYYY')
+    };
+    setWordData([...WordData, formattedNewWord]);
+    setFilteredWordData([...WordData, formattedNewWord]);
     setIsAddModalVisible(false);
   };
 
   const handleCancelAdd = () => {
     setIsAddModalVisible(false);
+  };
+
+  const handleDelete = (record) => {
+    const deleteEmployee = async () => {
+      try {
+        const response = await deleteWord(userIdLogin, record.id);
+        if (response.status === 200) {
+          const updatedWordData = WordData.filter((word) => word.id !== record.id);
+          setWordData(updatedWordData);
+          setFilteredWordData(updatedWordData);
+        } else {
+          console.error('Error deleting word:', response);
+        }
+      } catch (error) {
+        console.log('Error deleting word:', error);
+      }
+    };
+
+    Modal.confirm({
+      title: 'Confirm Delete',
+      content: 'Are you sure you want to delete this word?',
+      okText: 'Yes',
+      cancelText: 'No',
+      onOk() {
+        deleteEmployee();
+      },
+    });
+  };
+
+  const exportToExcel = () => {
+    const ws = XLSX.utils.json_to_sheet(filteredWordData.map(word => ({
+      "STT": word.index + 1,
+      "Date": word.formattedDate,
+      "Word": word.word,
+      "Meaning": word.meaning,
+      "Description": word.note,
+      "User Edit": word.user_add,
+      "Subject": word.subject
+    })));
+    
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Words");
+    XLSX.writeFile(wb, "WordsExport.xlsx");
   };
 
   const columns = [
@@ -58,9 +140,10 @@ const Word = () => {
     },
     {
       title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
-      sorter: (a, b) => new Date(a.date) - new Date(b.date),
+      dataIndex: 'formattedDate',
+      key: 'formattedDate',
+      filters: monthFilters,
+      onFilter: (value, record) => moment(record.date, 'HH:mm:ss DD/MM/YYYY').format('MM') === value,
     },
     {
       title: 'Word',
@@ -79,7 +162,7 @@ const Word = () => {
       dataIndex: 'note',
       key: 'note',
       sorter: (a, b) => a.note.localeCompare(b.note),
-      render: text => (
+      render: (text) => (
         <div>
           {text.length > 30 ? `${text.substring(0, 23)}...` : text}
         </div>
@@ -95,7 +178,7 @@ const Word = () => {
       title: 'Image',
       dataIndex: 'image',
       key: 'image',
-      render: image => <img src={image[0].link} style={{ width: 25, height: 25 }} />,
+      render: (image) => <img src={image[0].link} style={{ width: 25, height: 25 }} />,
     },
     {
       title: 'Subject',
@@ -115,55 +198,54 @@ const Word = () => {
     },
   ];
 
-  const handleDelete = (record) => {
-    // Define a function to handle actual deletion
-    console.log('Deleting record', record);
-    const deleteEmployee = async (userIdDelete, userId) => {
-      try {
-        const userId = record.Id;
-        console.log(record.Id)
-        const response = await deleteWord(userIdLogin, userId);
-        if (response.status === 200)
-        {
-          setCurrentWord(currentWord.filter((word) => word.id !== record.id));
-        } else
-        {
-          console.error('Error deleting employee:', response);
-        }
-      } catch (error) {
-        console.log('Error deleting employee:', error);
-      }
-    };
-    Modal.confirm({
-      title: 'Confirm Delete',
-      content: 'Are you sure you want to delete this Word ?',
-      okText: 'Yes',
-      cancelText: 'No',
-      onOk() {
-        deleteEmployee();
-      },
-    });
-  }; 
-
   return (
     <div>
       <h2>Manager Word</h2>
-      <Button type="primary" onClick={() => setIsAddModalVisible(true)}>
-        Add Word
-      </Button>
+      <Row justify="space-between" align="middle" style={{ marginBottom: '16px' }}>
+        <Col>
+          <Row gutter={16}>
+            <Col>
+              <Input
+                placeholder="Search by word or subject"
+                prefix={<SearchOutlined />}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: 200 }}
+              />
+            </Col>
+            <Col style={{ marginLeft: 16 }}>
+              <h3>Total Words: {totalWords}</h3>
+            </Col>
+          </Row>
+        </Col>
+        <Col>
+          <Button 
+            onClick={exportToExcel} 
+            type="primary" 
+            icon={<FileExcelOutlined />}
+            style={{ marginRight: 16 }}
+          >
+            Export to Excel
+          </Button>
+          <Button type="primary" onClick={() => setIsAddModalVisible(true)}>
+            Add Word
+          </Button>
+        </Col>
+      </Row>
       <div style={{ position: 'relative' }}>
         {loading && (
-          <div style={{
-            position: 'fixed',
-            top: '45%',
-            left: '55%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 9999
-          }}>
+          <div
+            style={{
+              position: 'fixed',
+              top: '45%',
+              left: '55%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 9999,
+            }}
+          >
             <Spin tip="Loading..." size="large" />
           </div>
         )}
-        <Table columns={columns} dataSource={WordData} pagination={{ pageSize: 6 }} />
+        <Table columns={columns} dataSource={filteredWordData} pagination={{ pageSize: 6 }} />
       </div>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <AddWord
@@ -176,4 +258,3 @@ const Word = () => {
 };
 
 export default Word;
-  

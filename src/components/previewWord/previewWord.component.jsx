@@ -1,34 +1,45 @@
-import React, { useEffect } from 'react';
-import {Modal, Table, Space, Button, Spin } from 'antd';
-import { useState } from 'react';
-import { getAllWord, deleteWord, addWord, updateWord } from '../../services/wordService';
+import React, { useEffect, useState } from 'react';
+import { Table, Spin, Input, Row, Col } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+import moment from 'moment';
+import { getAllWord } from '../../services/wordService';
+import WordDetailModal from './wordDetailModal';
+import styles from './peviewWord.module.scss';
 
 const loginInfo = localStorage.getItem('loginInfo');
 const userIdLogin = loginInfo ? JSON.parse(loginInfo).userId : null;
 
 const PreviewWord = () => {
   const [WordData, setWordData] = useState([]);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [currentWord, setCurrentWord] = useState(null);
+  const [filteredWordData, setFilteredWordData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-
+  const [selectedWord, setSelectedWord] = useState(null);
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
     const getWord = async () => {
       setLoading(true);
       try {
         const response = await getAllWord();
-          setWordData(response);
-          console.log(response);
-          setLoading(false);
+        setWordData(response);
+        setFilteredWordData(response);
+        setLoading(false);
       } catch (error) {
-        setLoading(false)
+        setLoading(false);
+        setError('Failed to fetch words');
       }
     };
     getWord();
   }, []);
+
+  useEffect(() => {
+    const filteredData = WordData.filter((word) =>
+      word.word.toLowerCase().includes(searchText.toLowerCase()) ||
+      word.subject.toLowerCase().includes(searchText.toLowerCase())
+    );
+    setFilteredWordData(filteredData);
+  }, [searchText, WordData]);
 
   const columns = [
     {
@@ -43,6 +54,7 @@ const PreviewWord = () => {
       dataIndex: 'date',
       key: 'date',
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
+      render: (date) => moment(date, 'HH:mm:ss DD/MM/YYYY').format('DD-MM-YYYY'),
     },
     {
       title: 'Word',
@@ -87,9 +99,23 @@ const PreviewWord = () => {
     },
   ];
 
+  const handleRowClick = (record) => {
+    setSelectedWord(record);
+  };
+
   return (
     <div>
-      <h2>Manager Word</h2>
+      <h2 className={styles['headerCentral']}>Manager Word</h2>
+      <Row justify="end" style={{ marginBottom: '16px' }}>
+        <Col>
+          <Input
+            placeholder="Search by word or subject"
+            prefix={<SearchOutlined />}
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ width: 270 }}
+          />
+        </Col>
+      </Row>
       <div style={{ position: 'relative' }}>
         {loading && (
           <div style={{
@@ -102,12 +128,24 @@ const PreviewWord = () => {
             <Spin tip="Loading..." size="large" />
           </div>
         )}
-        <Table columns={columns} dataSource={WordData} pagination={{ pageSize: 8 }} />
+        <Table
+          columns={columns}
+          dataSource={filteredWordData}
+          pagination={{ pageSize: 8 }}
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record),
+          })}
+        />
       </div>
       {error && <p style={{ color: 'red' }}>{error}</p>}
+      {selectedWord && (
+        <WordDetailModal
+          word={selectedWord}
+          onClose={() => setSelectedWord(null)}
+        />
+      )}
     </div>
   );
 };
 
 export default PreviewWord;
-  
