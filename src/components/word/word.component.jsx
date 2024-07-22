@@ -171,7 +171,6 @@ const Word = () => {
         onOk={handleAddWord}
         onCancel={handleCancelAdd}
       />
-
     </div>
   );
 };

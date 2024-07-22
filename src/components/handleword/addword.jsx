@@ -20,8 +20,7 @@ const AddWord = ({ open, onOk, onCancel }) => {
   const handleFinish = async (values) => {
     console.log('Received values of form: ', values);
     const completeData = {
-      user_add: userId, 
-      date: values.date,
+      user_add: userId,
       word: values.word,
       meaning: values.meaning,
       note: values.note,
@@ -65,13 +64,6 @@ const AddWord = ({ open, onOk, onCancel }) => {
         form={form}
         onFinish={handleFinish}
       >
-        <Form.Item
-          label="Date"
-          name="date"
-          rules={[{ required: true, message: 'Please input the date!' }]}
-        >
-          <Input />
-        </Form.Item>
         <Form.Item
           label="Word"
           name="word"

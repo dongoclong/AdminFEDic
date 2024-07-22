@@ -1,7 +1,35 @@
-import React from 'react';
-import { Table } from 'antd';
+import React, { useEffect } from 'react';
+import {Modal, Table, Space, Button, Spin } from 'antd';
+import { useState } from 'react';
+import { getAllWord, deleteWord, addWord, updateWord } from '../../services/wordService';
+
+const loginInfo = localStorage.getItem('loginInfo');
+const userIdLogin = loginInfo ? JSON.parse(loginInfo).userId : null;
 
 const PreviewWord = () => {
+  const [WordData, setWordData] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [currentWord, setCurrentWord] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+
+
+  useEffect(() => {
+    const getWord = async () => {
+      setLoading(true);
+      try {
+        const response = await getAllWord();
+          setWordData(response);
+          console.log(response);
+          setLoading(false);
+      } catch (error) {
+        setLoading(false)
+      }
+    };
+    getWord();
+  }, []);
+
   const columns = [
     {
       title: 'STT',
@@ -15,12 +43,6 @@ const PreviewWord = () => {
       dataIndex: 'date',
       key: 'date',
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
-    },
-    {
-      title: 'Date2',
-      dataIndex: 'date2',
-      key: 'date2',
-      sorter: (a, b) => new Date(a.date2) - new Date(b.date2),
     },
     {
       title: 'Word',
@@ -39,9 +61,14 @@ const PreviewWord = () => {
       dataIndex: 'note',
       key: 'note',
       sorter: (a, b) => a.note.localeCompare(b.note),
+      render: text => (
+        <div>
+          {text.length > 30 ? `${text.substring(0, 23)}...` : text}
+        </div>
+      ),
     },
     {
-      title: 'User Edit status',
+      title: 'User Edit',
       dataIndex: 'user_add',
       key: 'user_add',
       sorter: (a, b) => a.user_add.localeCompare(b.user_add),
@@ -50,7 +77,7 @@ const PreviewWord = () => {
       title: 'Image',
       dataIndex: 'image',
       key: 'image',
-      render: image => <img src={image} alt="Word" style={{ width: 25, height: 25 }} />,
+      render: image => <img src={image[0].link} style={{ width: 25, height: 25 }} />,
     },
     {
       title: 'Subject',
@@ -60,28 +87,27 @@ const PreviewWord = () => {
     },
   ];
 
-  // Sample data
-  const data = [
-    {
-      key: '1',
-      date: '2023-01-01',
-      date2: '2023-01-02',
-      word: 'Example',
-      meaning: 'A thing characteristic of its kind or illustrating a general rule.',
-      note: 'Used in a sentence as an example.',
-      user_add: 'Admin',
-      image: 'https://example.com/path/to/image.jpg',
-      subject: 'English',
-    },
-    // Add more data objects here as needed
-  ];
-
   return (
     <div>
-      <h2>Manager Account</h2>
-      <Table columns={columns} dataSource={data} pagination={{ pageSize: 5 }} />
+      <h2>Manager Word</h2>
+      <div style={{ position: 'relative' }}>
+        {loading && (
+          <div style={{
+            position: 'fixed',
+            top: '45%',
+            left: '55%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 9999
+          }}>
+            <Spin tip="Loading..." size="large" />
+          </div>
+        )}
+        <Table columns={columns} dataSource={WordData} pagination={{ pageSize: 8 }} />
+      </div>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 };
 
 export default PreviewWord;
+  
