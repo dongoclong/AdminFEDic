@@ -23,18 +23,26 @@ const AddWord = ({ open, onOk, onCancel }) => {
 
   const handleFinish = async (values) => {
     console.log('Received values of form: ', values);
-    const attachments = values.fileList.map(file => ({
-      "thumbUrl" : file.thumbUrl
-    }));
+    console.log('Received values of form 2: ', fileList);
+  
+    // Check if fileList exists and is an array
+    const attachments = (fileList || []).map(file => {
+      console.log('File: ', file); // Log each file object
+      return {
+        "attachment": file.thumbUrl.split(",")[1]// Ensure thumbUrl exists
+      };
+    });
+  
     const completeData = {
       "word": values.word,
       "meaning": values.meaning,
       "note": values.note,
-      "user_add": 1,
+      "user_add": "1",
       "subject": values.subject,
       "image": attachments
     };
-
+  
+    console.log('Complete Data: ', completeData);
     try {
       const response = await addWord(completeData);
       console.log("response",response);
