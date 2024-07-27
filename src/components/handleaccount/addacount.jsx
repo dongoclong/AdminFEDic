@@ -1,10 +1,11 @@
 import React from 'react';
-import { Modal, Form, Input, Button, message, Upload,  } from 'antd';
+import { Modal, Form, Input, Button, message, Upload, Select } from 'antd';
 import { useState } from 'react';
 import {PlusOutlined} from '@ant-design/icons'
 import {TextArea} from "antd/lib/input";
 import { addWord } from '../../services/wordService';
 
+const { Option } = Select;
 
 const loginInfo = localStorage.getItem('loginInfo');
 const userId = loginInfo ? JSON.parse(loginInfo).userId : null; // Ensure that loginInfo is not null
@@ -21,11 +22,10 @@ const AddUser = ({ open, onOk, onCancel }) => {
     console.log('Received values of form: ', values);
     const completeData = {
       user_add: userId,
-      word: values.word,
-      meaning: values.meaning,
-      note: values.note,
+      user_name: values.user_name,
+      password: values.password,
+      role: values.role,
       image: values.image,
-      subject: values.subject,
     };
 
     try {
@@ -46,7 +46,7 @@ const AddUser = ({ open, onOk, onCancel }) => {
 
   return (
     <Modal
-      title="Add New Word"
+      title="Add New User"
       open={open}
       onOk={() => form.submit()} // Call form.submit to trigger onFinish
       onCancel={onCancel}
@@ -65,39 +65,31 @@ const AddUser = ({ open, onOk, onCancel }) => {
         onFinish={handleFinish}
       >
         <Form.Item
-          label="Word"
-          name="word"
+          label="UserName"
+          name="user_name"
           rules={[{ required: true, message: 'Please input the word!' }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Meaning"
-          name="meaning"
+          label="Password"
+          name="password"
           rules={[{ required: true, message: 'Please input the meaning!' }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Description"
-          name="note"
+          label="Role"
+          name="role" 
+          rules={[{ required: true, message: 'Please select the role!' }]}
         >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="User Edit"
-          name="user_add"
-          initialValue={userId}
-          hidden
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-            label="Subject"
-            name="subject"
-        >
-          <Input />
+          <Select placeholder="Select a role">
+            <Option value="1">Admin</Option>
+            <Option value="2">Customer</Option>
+            <Option value= "3">Long deptrai 2k2</Option>
+            <Option value= "3">Long deptrai</Option>
+            <Option value= "3">Long sieudeptrai</Option>
+          </Select>
         </Form.Item>
 
         <Form.Item label="Upload" valuePropName="fileList" getValueFromEvent={normFile}>

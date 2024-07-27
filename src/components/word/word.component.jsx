@@ -91,12 +91,6 @@ const Word = () => {
     showEditModal(record);
   };
 
-  const handleEditOk = (editedEmployee) => {
-    console.log('Edited Employee', editedEmployee);
-    // Add logic to handle update of employee information here, such as calling an API
-    setIsEditModalOpen(false);
-  };
-
   const handleEditCancel = () => {
     setIsEditModalOpen(false);
   };

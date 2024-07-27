@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { getAllUser, deleteUser } from '../../services/acountService'; 
 import {Modal, Table, Space, Button, Spin } from 'antd';
 import AddUser from '../handleaccount/addacount'
+import userEvent from '@testing-library/user-event';
+import EditUser from '../handleaccount/editaccount';
 
 const loginInfo = localStorage.getItem('loginInfo');
 const userIdLogin = loginInfo ? JSON.parse(loginInfo).userId : null;
@@ -31,12 +33,6 @@ const User = () => {
     getUser();
   }, []);
 
-  const handleEdit = (record) => {
-    console.log('Editing record', record);
-    // showEditModal(record);
-    // Prepare any additional logic for editing here
-  };
-
   const handleAddUser = (newUser) => {
     setUserData([...UserData, newUser]);
     setIsAddModalVisible(false);
@@ -44,6 +40,20 @@ const User = () => {
 
   const handleCancelAdd = () => {
     setIsAddModalVisible(false);
+  };
+
+  const showEditModal = (user) => {
+    setCurrentUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEdit = (record) => {
+    console.log('Editing record', record);
+    showEditModal(record);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditModalOpen(false);
   };
 
   const handleDelete = (record) => {
@@ -150,6 +160,12 @@ const User = () => {
         open={isAddModalVisible}
         onOk={handleAddUser}
         onCancel={handleCancelAdd}
+      />
+      <EditUser
+        open={isEditModalOpen}
+        user={currentUser}
+        onOk={handleEdit}
+        onCancel={handleEditCancel}
       />
     </div>
   );

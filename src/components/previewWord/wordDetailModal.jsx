@@ -1,32 +1,114 @@
-import React from 'react';
-import styles from './wordDetailModal.module.scss';
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, Button, message, Upload } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { updateWord } from '../../services/wordService';
 
-const WordDetailModal = ({ word, onClose }) => {
-  if (!word) {
-    return null;
-  }
+const loginInfo = localStorage.getItem('loginInfo');
+const userId = loginInfo ? JSON.parse(loginInfo).userId : null;
+
+const WordDetailModal = ({ open, word, onCancel }) => {
+  const [form] = Form.useForm();
+  const [fileList, setFileList] = useState([]);
+
+  useEffect(() => {
+    if (word) {
+      const imageList = word.image ? word.image.map((img, index) => ({
+        uid: `-${index}`,
+        name: `image${index}.png`,
+        status: 'done',
+        url: img.link,
+      })) : [];
+      form.setFieldsValue({
+        ...word,
+        image: imageList,
+      });
+      setFileList(imageList);
+    }
+  }, [word, form]);
+
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
+  };
+
+  const handleChange = ({ fileList }) => {
+    setFileList(fileList);
+  };
 
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modalContainer}>
-        <div className={styles.modalHeader}>
-          <h2>Word Details</h2>
-          <button className={styles.closeButton} onClick={onClose}>×</button>
-        </div>
-        <div className={styles.modalContent}>
-          <p><strong>Date:</strong> {word.date}</p>
-          <p><strong>Word:</strong> {word.word}</p>
-          <p><strong>Meaning:</strong> {word.meaning}</p>
-          <p><strong>Description:</strong> {word.note}</p>
-          <p><strong>User Edit:</strong> {word.user_add}</p>
-          <p><strong>Subject:</strong> {word.subject}</p>
-          <p><strong>Image:</strong> <img src={word.image[0].link} alt="word" className={styles.wordImage} /></p>
-        </div>
-        <div className={styles.modalFooter}>
-          <button onClick={onClose} className={styles.closeButtonFooter}>Close</button>
-        </div>
-      </div>
-    </div>
+    <Modal
+      title="Word Detail"
+      open={open}
+      onOk={() => form.submit()}
+      onCancel={onCancel}
+      footer={[
+        <Button key="back" onClick={onCancel}>
+          Close
+        </Button>,
+      ]}
+    >
+      <Form
+        layout="vertical"
+        form={form}
+      >
+        <Form.Item
+          label="Word"
+          name="word"
+          rules={[{ required: true, message: 'Please input the word!' }]}
+        >
+          <Input disabled/>
+        </Form.Item>
+        <Form.Item
+          label="Meaning"
+          name="meaning"
+          rules={[{ required: true, message: 'Please input the meaning!' }]}
+        >
+          <Input disabled/>
+        </Form.Item>
+        <Form.Item
+          label="Description"
+          name="note"
+        >
+          <Input disabled/>
+        </Form.Item>
+        <Form.Item
+          label="User Edit"
+          name="user_add"
+          initialValue={userId}
+          hidden
+        >
+          <Input disabled/>
+        </Form.Item>
+        <Form.Item
+          label="Subject"
+          name="subject"
+        >
+          <Input disabled/>
+        </Form.Item>
+        <Form.Item
+          label="Image"
+          name="image"
+          valuePropName="fileList"
+          getValueFromEvent={normFile}
+        >
+          <Upload disabled
+            listType="picture-card"
+            fileList={fileList}
+            onChange={handleChange}
+            multiple
+          >
+            {fileList.length >= 5 ? null : (
+              <div>
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>Upload</div>
+              </div>
+            )}
+          </Upload>
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 

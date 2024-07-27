@@ -16,6 +16,8 @@ const PreviewWord = () => {
   const [error, setError] = useState('');
   const [selectedWord, setSelectedWord] = useState(null);
   const [searchText, setSearchText] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
 
   useEffect(() => {
     const getWord = async () => {
@@ -40,6 +42,14 @@ const PreviewWord = () => {
     );
     setFilteredWordData(filteredData);
   }, [searchText, WordData]);
+
+  const handleModalCancel = () => {
+    setIsModalOpen(false);
+  }
+
+  const handleModalOk = () => {
+    setIsModalOpen(true)
+  }
 
   const columns = [
     {
@@ -101,6 +111,7 @@ const PreviewWord = () => {
 
   const handleRowClick = (record) => {
     setSelectedWord(record);
+    setIsModalOpen(true);
   };
 
   return (
@@ -140,8 +151,10 @@ const PreviewWord = () => {
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {selectedWord && (
         <WordDetailModal
+          open={isModalOpen}
           word={selectedWord}
-          onClose={() => setSelectedWord(null)}
+          onOk={handleModalOk}
+          onCancel={handleModalCancel}
         />
       )}
     </div>

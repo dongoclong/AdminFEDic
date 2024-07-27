@@ -1,19 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, Button, message, Upload } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { updateWord, addWord } from '../../services/wordService';
+import { updateWord } from '../../services/wordService';
 
 const loginInfo = localStorage.getItem('loginInfo');
 const userId = loginInfo ? JSON.parse(loginInfo).userId : null;
-
-const getBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-};
 
 const EditWord = ({ open, word, onOk, onCancel }) => {
   const [form] = Form.useForm();
@@ -42,34 +33,37 @@ const EditWord = ({ open, word, onOk, onCancel }) => {
     return e?.fileList;
   };
 
-  const handleChange = async ({ fileList }) => {
-    const newFileList = await Promise.all(fileList.map(async (file) => {
-      if (file.originFileObj) {
-        const base64 = await getBase64(file.originFileObj);
-        return {
-          ...file,
-          base64,
-        };
-      }
-      return file;
-    }));
-    setFileList(newFileList);
+  const handleChange = ({ fileList }) => {
+    setFileList(fileList);
   };
 
   const handleFinish = async (values) => {
     console.log('Received values of form: ', values);
-    const completeData = {
-      user_add: userId,
-      word: values.word,
-      meaning: values.meaning,
-      note: values.note,
-      image: values.image ? values.image.map(file => file.base64 || file.url) : [],
-      subject: values.subject,
-    };
+    console.log('Received values of form 2: ', fileList);
+  
 
+    const newListImage = fileList.filter(file => !file.url)
+    console.log('Received values of form 3: ', newListImage);
+    const attachments = (newListImage || []).map(file => {
+      console.log('File: ', file); // Log each file object
+      return {
+        "attachment": file.thumbUrl.split(",")[1]// Ensure thumbUrl exists
+      };
+    });
+  
+    const completeData = {
+      "word": values.word,
+      "meaning": values.meaning,
+      "note": values.note,
+      "user_add": "1",
+      "subject": values.subject,
+      "image": attachments
+    };
+  
+    console.log('Complete Data: ', completeData);
     try {
       const response = await updateWord(completeData);
-      console.log(response);
+      console.log("response",response);
       if (response.statusCode !== '200') {
         message.error(response.message);
       } else {
