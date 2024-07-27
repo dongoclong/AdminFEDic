@@ -3,9 +3,10 @@ import { Modal, Table, Space, Button, Spin, Input, Row, Col } from 'antd';
 import { SearchOutlined, FileExcelOutlined } from '@ant-design/icons';
 import { getAllWord, deleteWord, addWord } from '../../services/wordService';
 import AddWord from '../handleword/addword';
+import EditWord from '../handleword/editword'
 import moment from 'moment';
 import * as XLSX from 'xlsx';
-
+const fallbackImageUrl = 'https://via.placeholder.com/25'; // Replace with your desired fallback image URL
 const loginInfo = localStorage.getItem('loginInfo');
 const userIdLogin = loginInfo ? JSON.parse(loginInfo).userId : null;
 
@@ -67,12 +68,6 @@ const Word = () => {
     setTotalWords(filteredData.length);
   }, [searchText, selectedMonth, WordData]);
 
-  const handleEdit = (record) => {
-    console.log('Editing record', record);
-    // showEditModal(record);
-    // Prepare any additional logic for editing here
-  };
-
   const handleAddWord = (newWord) => {
     const formattedNewWord = {
       ...newWord,
@@ -85,6 +80,25 @@ const Word = () => {
 
   const handleCancelAdd = () => {
     setIsAddModalVisible(false);
+  };
+  const showEditModal = (word) => {
+    setCurrentWord(word);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEdit = (record) => {
+    console.log('Editing record', record);
+    showEditModal(record);
+  };
+
+  const handleEditOk = (editedEmployee) => {
+    console.log('Edited Employee', editedEmployee);
+    // Add logic to handle update of employee information here, such as calling an API
+    setIsEditModalOpen(false);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditModalOpen(false);
   };
 
   const handleDelete = (record) => {
@@ -178,7 +192,12 @@ const Word = () => {
       title: 'Image',
       dataIndex: 'image',
       key: 'image',
-      render: (image) => <img src={image[0].link} style={{ width: 25, height: 25 }} />,
+      render: (image) => (
+        <img
+          src={image && image[0] && image[0].link ? image[0].link : fallbackImageUrl}
+          style={{ width: 25, height: 25 }}
+        />
+      ),
     },
     {
       title: 'Subject',
@@ -252,6 +271,12 @@ const Word = () => {
         open={isAddModalVisible}
         onOk={handleAddWord}
         onCancel={handleCancelAdd}
+      />
+      <EditWord
+        open={isEditModalOpen}
+        word={currentWord}
+        onOk={handleEdit}
+        onCancel={handleEditCancel}
       />
     </div>
   );

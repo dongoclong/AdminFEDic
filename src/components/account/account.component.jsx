@@ -91,6 +91,11 @@ const User = () => {
       sorter: (a, b) => a.user_name.localeCompare(b.user_name),
     },
     {
+      title: 'PassWord',
+      dataIndex: 'password',
+      key: 'password',
+    },
+    {
       title: 'Role',
       dataIndex: 'role',
       key: 'role',

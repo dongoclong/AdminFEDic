@@ -23,7 +23,7 @@ export const getAllWord = async () => {
 
 export const updateWord = async (dataWord) => {
   try {
-    const response = await axios.post(`${baseUrl}/UpdateOrderAdmin`, dataWord, {
+    const response = await axios.post(`${baseUrl}/update`, dataWord, {
       headers: {
         'ngrok-skip-browser-warning': 'true'
       }

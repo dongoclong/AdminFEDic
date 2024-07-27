@@ -15,8 +15,9 @@ const LoginPage = () => {
     setLoading(true);
     try {
       const data = await login(values.username, values.password);
+      console.log(values.username, values.password)
       console.log('Login data:', data);
-      if (data.success) {
+      if (data.status === 200) {
         localStorage.setItem('loginInfo', JSON.stringify(data));
         navigate('/admin'); // navigate to the admin page
         setLoading(false);

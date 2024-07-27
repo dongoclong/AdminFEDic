@@ -2,16 +2,12 @@ import axios from 'axios';
 
 export const login = async (username, password) => {
   try {
-    const response = await axios.post('http://localhost:34314/api/Authen/Login', {
+    const response = await axios.post('https://fastapi-dic.vercel.app/api/v1/user/login', {
       username,
       password
     });
-
-    if (response.status === 200) {
-      return response.data;
-    } else {
-      throw new Error('Login failed');
-    }
+    console.log(response.data)
+    return response.data  
   } catch (error) {
     console.error(error);
     throw error;
