@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Table, Space, Button, Spin, Input, Row, Col } from 'antd';
 import { SearchOutlined, FileExcelOutlined } from '@ant-design/icons';
-import { getAllWord, deleteWord, addWord } from '../../services/wordService';
+import { getAllWord, DeleteWord, addWord } from '../../services/wordService';
 import AddWord from '../handleword/addword';
 import EditWord from '../handleword/editword'
 import moment from 'moment';
@@ -98,13 +98,19 @@ const Word = () => {
   const handleDelete = (record) => {
     const deleteEmployee = async () => {
       try {
-        const response = await deleteWord(userIdLogin, record.id);
+        console.log(record.id)
+        const idProduct = {
+          "id_product" : record.id.toString()
+        };
+        console.log("id", idProduct)
+        const response = await DeleteWord(idProduct);
         if (response.status === 200) {
           const updatedWordData = WordData.filter((word) => word.id !== record.id);
           setWordData(updatedWordData);
           setFilteredWordData(updatedWordData);
+          console.error('Deletedata', response)
         } else {
-          console.error('Error deleting word:', response);
+          console.suscess(response);
         }
       } catch (error) {
         console.log('Error deleting word:', error);

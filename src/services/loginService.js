@@ -1,5 +1,5 @@
 import axios from 'axios';
-const baseUrl = 'http://localhost:8000/api/v1/user';
+const baseUrl = 'https://fastapi-dic.vercel.app/api/v1/user';
 export const login = async (DataLogin) => {
   try {
     // const response = await axios.post('http://localhost:8000/api/v1/user/login', {

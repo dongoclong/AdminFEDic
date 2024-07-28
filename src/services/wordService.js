@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseUrl = 'http://localhost:8000/api/v1/product';
+const baseUrl = 'https://fastapi-dic.vercel.app/api/v1/product';
 
 export const getAllWord = async () => {
   try {
@@ -59,19 +59,25 @@ export const addWord = async (newWordData) => {
   }
 }
 
-export const deleteWord = async (userIdDelete, userId) => {
+export const DeleteWord = async (WordData) => {
   try {
-    const response = await axios.delete(`${baseUrl}/deleteUser`, {
-      params: {
-        userIdDelete: userIdDelete,
-        userId: userId
+    const response = await axios.delete(`${baseUrl}/delete`, {
+      data: WordData,
+      headers: {
+        'ngrok-skip-browser-warning': 'true'
       }
     });
+    console.log('Full response:', response);
     return response.data;
   } catch (error) {
+    if (error.response) {
+      console.log('Error response:', error.response);
+    } else {
+      console.log('Error message:', error.message);
+    }
     throw error;
   }
-};
+}
 
 
 

@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { addWord } from '../../services/wordService';
 
 const loginInfo = localStorage.getItem('loginInfo');
-const userId = loginInfo ? JSON.parse(loginInfo).userId : null;
+const userId = loginInfo ? JSON.parse(loginInfo).id : null;
 
 const AddWord = ({ open, onOk, onCancel }) => {
   const [form] = Form.useForm();
@@ -47,7 +47,7 @@ const AddWord = ({ open, onOk, onCancel }) => {
       const response = await addWord(completeData);
       console.log("response",response);
       if (response.statusCode !== '200') {
-        message.error(response.message);
+        message.success(response.message);
       } else {
         message.success('Word added successfully');
         console.log('API Response:', response);

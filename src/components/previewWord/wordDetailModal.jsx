@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Button, message, Upload } from 'antd';
+import { Modal, Typography, Button, Upload } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { updateWord } from '../../services/wordService';
+
+const { Text, Paragraph } = Typography;
 
 const loginInfo = localStorage.getItem('loginInfo');
 const userId = loginInfo ? JSON.parse(loginInfo).userId : null;
 
 const WordDetailModal = ({ open, word, onCancel }) => {
-  const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
 
   useEffect(() => {
@@ -18,20 +18,9 @@ const WordDetailModal = ({ open, word, onCancel }) => {
         status: 'done',
         url: img.link,
       })) : [];
-      form.setFieldsValue({
-        ...word,
-        image: imageList,
-      });
       setFileList(imageList);
     }
-  }, [word, form]);
-
-  const normFile = (e) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e?.fileList;
-  };
+  }, [word]);
 
   const handleChange = ({ fileList }) => {
     setFileList(fileList);
@@ -39,9 +28,8 @@ const WordDetailModal = ({ open, word, onCancel }) => {
 
   return (
     <Modal
-      title="Word Detail"
+      title={<div style={{ textAlign: 'center' }}>Word Detail</div>}
       open={open}
-      onOk={() => form.submit()}
       onCancel={onCancel}
       footer={[
         <Button key="back" onClick={onCancel}>
@@ -49,65 +37,44 @@ const WordDetailModal = ({ open, word, onCancel }) => {
         </Button>,
       ]}
     >
-      <Form
-        layout="vertical"
-        form={form}
-      >
-        <Form.Item
-          label="Word"
-          name="word"
-          rules={[{ required: true, message: 'Please input the word!' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Meaning"
-          name="meaning"
-          rules={[{ required: true, message: 'Please input the meaning!' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Description"
-          name="note"
-        >
-          <Input/>
-        </Form.Item>
-        <Form.Item
-          label="User Edit"
-          name="user_add"
-          initialValue={userId}
-          hidden
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Subject"
-          name="subject"
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Image"
-          name="image"
-          valuePropName="fileList"
-          getValueFromEvent={normFile}
-        >
-          <Upload disabled
-            listType="picture-card"
-            fileList={fileList}
-            onChange={handleChange}
-            multiple
-          >
-            {fileList.length >= 5 ? null : (
-              <div>
-                <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
-              </div>
-            )}
-          </Upload>
-        </Form.Item>
-      </Form>
+      <div>
+        <div style={{ marginBottom: 16 }}>
+          <Text strong>Word: </Text>
+          <Text>{word?.word}</Text>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <Text strong>Meaning: </Text>
+          <Text>{word?.meaning}</Text>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <Text strong>Description: </Text>
+          <Paragraph>{word?.note}</Paragraph>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <Text strong>Subject: </Text>
+          <Text>{word?.subject}</Text>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <Text strong>Image:</Text>
+          {word?.image?.length > 0 ? (
+            <div>
+              {word.image.map((img, index) => (
+                <div key={index} style={{ marginBottom: 8 }}>
+                  <img src={img.link} alt={`Image ${index + 1}`} style={{ maxWidth: '100%', height: 'auto' }} />
+                  <div>
+                    <Text>Image {index + 1}: {img.name}</Text>
+                    <a href={img.link} target="_blank" rel="noreferrer">
+                      <Text underline>View Image</Text>
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Text>No images available</Text>
+          )}
+        </div>
+      </div>
     </Modal>
   );
 };

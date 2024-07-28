@@ -25,12 +25,12 @@ const AdminPage = () => {
   const [selectedKey, setSelectedKey] = useState('1');
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const loginInfo = localStorage.getItem('loginInfo');
-  //   if (!loginInfo) {
-  //     navigate('/login');
-  //   }
-  // }, [navigate]);
+  useEffect(() => {
+    const loginInfo = localStorage.getItem('loginInfo');
+    if (!loginInfo) {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
