@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseUrl = 'https://fastapi-dic.vercel.app/api/v1/user';
+const baseUrl = 'http://localhost:8000/api/v1/user';
 
 export const getAllUser = async () => {
     try {
@@ -9,7 +9,7 @@ export const getAllUser = async () => {
                 'ngrok-skip-browser-warning': 'true'
             }
         });
-        console.log('Full response:', response);
+        // console.log('Full response:', response);
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -59,13 +59,11 @@ export const addUser = async (newUserData) => {
     }
 }
 
-export const deleteUser = async (id_user_delete, id_user) => {
+export const deleteUser = async (DataDelete) => {
+    console.log(DataDelete)
     try {
         const response = await axios.delete(`${baseUrl}/delete`, {
-            params: {
-              id_user_delete: id_user_delete,
-              id_user: id_user
-            }
+            data: DataDelete
         });
         return response.data;
     } catch (error) {

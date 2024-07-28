@@ -58,20 +58,20 @@ const WordDetailModal = ({ open, word, onCancel }) => {
           name="word"
           rules={[{ required: true, message: 'Please input the word!' }]}
         >
-          <Input disabled/>
+          <Input />
         </Form.Item>
         <Form.Item
           label="Meaning"
           name="meaning"
           rules={[{ required: true, message: 'Please input the meaning!' }]}
         >
-          <Input disabled/>
+          <Input />
         </Form.Item>
         <Form.Item
           label="Description"
           name="note"
         >
-          <Input disabled/>
+          <Input/>
         </Form.Item>
         <Form.Item
           label="User Edit"
@@ -79,13 +79,13 @@ const WordDetailModal = ({ open, word, onCancel }) => {
           initialValue={userId}
           hidden
         >
-          <Input disabled/>
+          <Input />
         </Form.Item>
         <Form.Item
           label="Subject"
           name="subject"
         >
-          <Input disabled/>
+          <Input />
         </Form.Item>
         <Form.Item
           label="Image"

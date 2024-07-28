@@ -22,8 +22,8 @@ const AddWord = ({ open, onOk, onCancel }) => {
   };
 
   const handleFinish = async (values) => {
-    console.log('Received values of form: ', values);
-    console.log('Received values of form 2: ', fileList);
+    // console.log('Received values of form: ', values);
+    // console.log('Received values of form 2: ', fileList);
   
     // Check if fileList exists and is an array
     const attachments = (fileList || []).map(file => {
@@ -37,7 +37,7 @@ const AddWord = ({ open, onOk, onCancel }) => {
       "word": values.word,
       "meaning": values.meaning,
       "note": values.note,
-      "user_add": "1",
+      "user_add": userId.toString(),
       "subject": values.subject,
       "image": attachments
     };

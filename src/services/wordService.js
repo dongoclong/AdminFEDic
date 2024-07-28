@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseUrl = 'https://fastapi-dic.vercel.app/api/v1/product';
+const baseUrl = 'http://localhost:8000/api/v1/product';
 
 export const getAllWord = async () => {
   try {

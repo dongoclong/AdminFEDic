@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import EditUser from '../handleaccount/editaccount';
 
 const loginInfo = localStorage.getItem('loginInfo');
-const userIdLogin = loginInfo ? JSON.parse(loginInfo).userId : null;
+const userIdLogin = loginInfo ? JSON.parse(loginInfo).id : null;
 
 const User = () => {
   const [UserData, setUserData] = useState([]);
@@ -61,9 +61,15 @@ const User = () => {
     console.log('Deleting record', record);
     const deleteEmployee = async (userIdDelete, userId) => {
       try {
-        const userId = record.Id;
-        console.log(record.Id)
-        const response = await deleteUser(userIdLogin, userId);
+        const userId = record.id;
+        const completeData = {
+          "id_user_src": userIdLogin.toString(),
+          "id_user_target": userId.toString()
+        };
+
+        // console.log("data del: ", completeData)
+        const response = await deleteUser(completeData);
+        console.log(response)
         if (response.status === 200)
         {
           setCurrentUser(currentUser.filter((word) => word.id !== record.id));
@@ -77,7 +83,7 @@ const User = () => {
     };
     Modal.confirm({
       title: 'Confirm Delete',
-      content: 'Are you sure you want to delete this Word ?',
+      content: 'Are you sure you want to delete this Account ?',
       okText: 'Yes',
       cancelText: 'No',
       onOk() {
@@ -121,7 +127,7 @@ const User = () => {
       title: 'Image',
       dataIndex: 'image',
       key: 'image',
-      render: image => <img src={image[0].link} style={{ width: 25, height: 25 }} />,
+      render: image => <img src={image} style={{ width: 25, height: 25 }} />,
     },
     {
       title: 'Actions',

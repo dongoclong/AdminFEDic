@@ -14,15 +14,21 @@ const LoginPage = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      const data = await login(values.username, values.password);
-      console.log(values.username, values.password)
-      console.log('Login data:', data);
-      if (data.status === 200) {
-        localStorage.setItem('loginInfo', JSON.stringify(data));
+      const LoginData = {
+        "user_name": values.username,
+        "password": values.password
+      };
+      const response = await login(LoginData);
+      // console.log(values.username, values.password)
+      // console.log("status: ", response.json().status)
+      // const statusCode = response.status;
+      console.log('Login response:', response);
+      if (response[1] === 200) {
+        localStorage.setItem('loginInfo', JSON.stringify(response[0]));
         navigate('/admin'); // navigate to the admin page
         setLoading(false);
       } else {
-        setError(data.message || "Authentication failed. Please check your credentials.");
+        setError(response.message || "Authentication failed. Please check your credentials.");
         setLoading(false);
       }
     } catch (err) {

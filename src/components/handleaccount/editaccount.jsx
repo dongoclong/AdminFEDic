@@ -5,8 +5,8 @@ import { updateUser } from '../../services/acountService';
 
 const { Option } = Select;
 
-const loginInfo = localStorage.getItem('loginInfo');
-const userId = loginInfo ? JSON.parse(loginInfo).userId : null;
+// const loginInfo = localStorage.getItem('loginInfo');
+// const userId = loginInfo ? JSON.parse(loginInfo).id : null;
 
 const EditUser = ({ open, onOk, onCancel, user }) => {
   const [form] = Form.useForm();
@@ -29,14 +29,18 @@ const EditUser = ({ open, onOk, onCancel, user }) => {
   }, [user, form]);
 
   const handleFinish = async (values) => {
-    console.log('Received values of form: ', values);
+    // console.log('Received values of form: ', values);
+    const loginInfo = localStorage.getItem('loginInfo');
+    const userId = loginInfo ? JSON.parse(loginInfo).id : null;
     const completeData = {
-      user_add: userId,
-      user_name: values.user_name,
-      password: values.password,
-      role: values.role,
+      "id_user_src": userId.toString(),
+      "id_user_target": user.id.toString(),
+      "user_name": values.user_name,
+      "old_password": values.old_password,
+      "new_password": values.new_password,
+      "role": values.role,
     };
-
+    console.log(completeData)
     try {
       const response = await updateUser(completeData);
       console.log(response);
@@ -73,24 +77,31 @@ const EditUser = ({ open, onOk, onCancel, user }) => {
         form={form}
         onFinish={handleFinish}
       >
-        <Form.Item
+        {/* <Form.Item
           label="Id"
           name="id_user"
           rules={[{ required: true, message: 'Please input the user id!' }]}
         >
           <Input disabled />
-        </Form.Item>
+        </Form.Item> */}
 
         <Form.Item
-          label="UserName"
+          label="User Name"
           name="user_name"
           rules={[{ required: true, message: 'Please input the username!' }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
-          label="Password"
-          name="password"
+          label="Old Password"
+          name="old_password"
+          rules={[{ required: true, message: 'Please input the password!' }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          label="New Password"
+          name="new_password"
           rules={[{ required: true, message: 'Please input the password!' }]}
         >
           <Input />
@@ -103,9 +114,9 @@ const EditUser = ({ open, onOk, onCancel, user }) => {
           <Select placeholder="Select a role">
             <Option value="1">Admin</Option>
             <Option value="2">Customer</Option>
-            <Option value="3">Long deptrai 2k2</Option>
+            {/* <Option value="3">Long deptrai 2k2</Option>
             <Option value="4">Long deptrai</Option>
-            <Option value="5">Long sieudeptrai</Option>
+            <Option value="5">Long sieudeptrai</Option> */}
           </Select>
         </Form.Item>
 

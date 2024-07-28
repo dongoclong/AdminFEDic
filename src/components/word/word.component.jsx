@@ -258,7 +258,7 @@ const Word = () => {
             <Spin tip="Loading..." size="large" />
           </div>
         )}
-        <Table columns={columns} dataSource={filteredWordData} pagination={{ pageSize: 6 }} />
+        <Table columns={columns} dataSource={filteredWordData} pagination={{ pageSize: 20 }} />
       </div>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <AddWord
